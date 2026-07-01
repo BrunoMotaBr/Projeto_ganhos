@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <!-- Meta tag crucial para funcionar perfeitamente no celular -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Histórico de Ganhos</title>
+    <style>
+        /* Estilos Globais Responsivos */
+        body { font-family: Arial, sans-serif; margin: 15px; background-color: #f8f9fa; color: #333; }
+        h2 { color: #222; font-size: 1.5rem; }
+        
+        .btn-container { display: flex; gap: 10px; margin-bottom: 20px; }
+        button { flex: 1; max-width: 200px; padding: 12px; font-size: 1rem; background-color: #007bff; color: white; border: none; cursor: pointer; border-radius: 6px; font-weight: bold; }
+        button:hover { background-color: #0056b3; }
+        .btn-success { background-color: #28a745; }
+        .btn-success:hover { background-color: #218838; }
+        .btn-danger { background-color: #dc3545; }
+        
+        /* Container que permite rolagem horizontal da tabela no celular */
+        .table-responsive { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        table { width: 100%; border-collapse: collapse; min-width: 900px; } /* Mantém largura mínima para não esmagar dados */
+        th, td { border: 1px solid #dee2e6; padding: 12px 10px; text-align: left; font-size: 0.9rem; }
+        th { background-color: #f1f3f5; font-weight: bold; }
+        tr:nth-child(even) { background-color: #f8f9fa; }
+        .erro { color: #dc3545; font-weight: bold; margin-bottom: 15px; }
+
+        /* Estilos do Modal */
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); overflow-y: auto; padding: 10px; box-sizing: border-box; }
+        .modal-content { background-color: white; margin: 20px auto; padding: 20px; border-radius: 8px; max-width: 500px; width: 100%; box-sizing: border-box; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 15px; }
+        .modal-header h3 { margin: 0; font-size: 1.3rem; }
+        .close-btn { font-size: 1.8rem; font-weight: bold; color: #aaa; cursor: pointer; background: none; border: none; padding: 0; width: auto; }
+        
+        /* Estilos do Formulário dentro do Modal */
+        .form-group { margin-bottom: 12px; }
+        .form-group label { display: block; font-weight: bold; margin-bottom: 5px; font-size: 0.9rem; }
+        .form-group input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 1rem; inputmode: decimal; }
+        .form-actions { display: flex; gap: 10px; margin-top: 20px; }
+    </style>
+</head>
+<body>
+
+    <h2>Histórico de Ganhos e Despesas</h2>
+    
+    <div class="btn-container">
+        <button onclick="buscarGanhos()">Atualizar</button>
+        <button class="btn-success" onclick="abrirModal()">Adicionar</button>
+    </div>
+
+    <div id="mensagem-erro" class="erro"></div>
+
+    <div class="table-responsive">
+        <table>
+            <thead>
+                <tr>
+                    <th>Data</th>
+                    <th>Uber</th>
+                    <th>99</th>
+                    <th>InDrive</th>
+                    <th>Outros</th>
+                    <th>KM Rodados</th>
+                    <th>Combustível</th>
+                    <th>Preço Litro</th>
+                    <th>Litros</th>
+                    <th>Total Líquido</th>
+                </tr>
+            </thead>
+            <tbody id="tabela-corpo">
+                <tr>
+                    <td colspan="10" style="text-align: center;">Clique em atualizar ou aguarde carregar...</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div id="modalForm" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Cadastrar Ganho Diário</h3>
+                <button class="close-btn" onclick="fecharModal()">&times;</button>
+            </div>
+            
+            <form id="meuFormulario" onsubmit="salvarGanhos(event)">
+                <div class="form-group">
+                    <label for="dia">Data (Dia):</label>
+                    <input type="date" id="dia" required>
+                </div>
+                <div class="form-group">
+                    <label for="uber">Uber (R$):</label>
+                    <input type="number" id="uber" step="0.01" min="0" value="0.00">
+                </div>
+                <div class="form-group">
+                    <label for="noventa_nove">99 App (R$):</label>
+                    <input type="number" id="noventa_nove" step="0.01" min="0" value="0.00">
+                </div>
+                <div class="form-group">
+                    <label for="indrive">InDrive (R$):</label>
+                    <input type="number" id="indrive" step="0.01" min="0" value="0.00">
+                </div>
+                <div class="form-group">
+                    <label for="outros">Outros (R$):</label>
+                    <input type="number" id="outros" step="0.01" min="0" value="0.00">
+                </div>
+                <div class="form-group">
+                    <label for="kms_rodados">KMs Rodados:</label>
+                    <input type="number" id="kms_rodados" step="0.1" min="0" value="0.0">
+                </div>
+                <div class="form-group">
+                    <label for="valor_combustivel">Gasto Combustível (R$):</label>
+                    <input type="number" id="valor_combustivel" step="0.01" min="0" value="0.00">
+                </div>
+                <div class="form-group">
+                    <label for="valor_litro">Preço do Litro (R$):</label>
+                    <input type="number" id="valor_litro" step="0.001" min="0" value="0.000">
+                </div>
+                <div class="form-group">
+                    <label for="quantidade_litros">Quantidade Litros:</label>
+                    <input type="number" id="quantidade_litros" step="0.01" min="0" value="0.00">
+                </div>
+                <div class="form-group">
+                    <label for="total_dia">Total Líquido do Dia (R$):</label>
+                    <input type="number" id="total_dia" step="0.01" value="0.00">
+                </div>
+                
+                <div class="form-actions">
+                    <button type="button" class="btn-danger" onclick="fecharModal()">Cancelar</button>
+                    <button type="submit" class="btn-success">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const urlApi = 'http://localhost:3003/ganhos';
+
+        function abrirModal() {
+            document.getElementById('modalForm').style.display = 'block';
+            document.getElementById('dia').value = new Date().toISOString().split('T')[0];
+        }
+
+        function fecharModal() {
+            document.getElementById('modalForm').style.display = 'none';
+            document.getElementById('meuFormulario').reset();
+        }
+
+        window.onclick = function(event) {
+            const modal = document.getElementById('modalForm');
+            if (event.target == modal) {
+                fecharModal();
+            }
+        }
+
+        async function buscarGanhos() {
+            const corpoTabela = document.getElementById('tabela-corpo');
+            const containerErro = document.getElementById('mensagem-erro');
+            
+            containerErro.innerText = ''; 
+            corpoTabela.innerHTML = '<tr><td colspan="10" style="text-align: center;">Carregando dados...</td></tr>';
+
+            try {
+                const resposta = await fetch(urlApi);
+                if (!resposta.ok) throw new Error(`Erro na requisição: ${resposta.status}`);
+
+                const listaGanhos = await resposta.json();
+                corpoTabela.innerHTML = '';
+
+                if (listaGanhos.length === 0) {
+                    corpoTabela.innerHTML = '<tr><td colspan="10" style="text-align: center;">Nenhum registro encontrado.</td></tr>';
+                    return;
+                }
+
+                listaGanhos.forEach(ganho => {
+                    const linha = document.createElement('tr');
+                    const dataFormatada = ganho.dia ? new Date(ganho.dia).toLocaleDateString('pt-BR', {timeZone: 'UTC'}) : 'N/A';
+
+                    linha.innerHTML = `
+                        <td>${dataFormatada}</td>
+                        <td>R$ ${Number(ganho.uber).toFixed(2)}</td>
+                        <td>R$ ${Number(ganho.noventa_nove).toFixed(2)}</td>
+                        <td>R$ ${Number(ganho.indrive).toFixed(2)}</td>
+                        <td>R$ ${Number(ganho.outros).toFixed(2)}</td>
+                        <td>${Number(ganho.kms_rodados).toFixed(1)} km</td>
+                        <td>R$ ${Number(ganho.valor_combustivel).toFixed(2)}</td>
+                        <td>R$ ${Number(ganho.valor_litro).toFixed(3)}</td>
+                        <td>${Number(ganho.quantidade_litros).toFixed(2)} L</td>
+                        <td style="font-weight: bold; color: ${ganho.total_dia >= 0 ? 'green' : 'red'}">
+                            R$ ${Number(ganho.total_dia).toFixed(2)}
+                        </td>
+                    `;
+                    corpoTabela.appendChild(linha);
+                });
+
+            } catch (erro) {
+                console.error('Erro ao buscar dados:', erro);
+                containerErro.innerText = 'Não foi possível carregar os dados.';
+                corpoTabela.innerHTML = 'Erro ao carregar dados.';
+            }
+        }
+</script>
