@@ -113,18 +113,18 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="valor_combustivel">Gasto Combustível (R$):</label>
-                    <input type="number" id="valor_combustivel" step="0.01" min="0" value="0.00" data-calculo>
-                </div>
-
-                <div class="form-group">
-                    <label for="valor_litro">Preço do Litro (R$):</label>
+                    <label for="valor_litro">Preço do litro (R$):</label>
                     <input type="number" id="valor_litro" step="0.001" min="0" value="0.000" data-calculo>
                 </div>
 
                 <div class="form-group">
-                    <label for="quantidade_litros">Quantidade de litros (calculada):</label>
-                    <input type="number" id="quantidade_litros" step="0.01" readonly value="0.00">
+                    <label for="quantidade_litros">Quantidade de litros:</label>
+                    <input type="number" id="quantidade_litros" step="0.01" min="0" value="0.00" data-calculo>
+                </div>
+
+                <div class="form-group">
+                    <label for="valor_combustivel">Gasto com combustível (calculado):</label>
+                    <input type="number" id="valor_combustivel" step="0.01" readonly value="0.00">
                 </div>
 
                 <div class="form-group">
@@ -176,16 +176,19 @@
             const noventaNove = pegarNumero('noventa_nove');
             const indrive = pegarNumero('indrive');
             const outros = pegarNumero('outros');
-            const valorCombustivel = pegarNumero('valor_combustivel');
             const valorLitro = pegarNumero('valor_litro');
+            const quantidadeLitros = pegarNumero('quantidade_litros');
 
             const totalBruto = uber + noventaNove + indrive + outros;
-            const quantidadeLitros = valorLitro > 0
-                ? valorCombustivel / valorLitro
-                : 0;
-            const totalLiquido = totalBruto - valorCombustivel;
+            const valorCombustivel = Number((
+                quantidadeLitros * valorLitro
+            ).toFixed(2));
 
-            preencherCalculado('quantidade_litros', quantidadeLitros, 2);
+            const totalLiquido = Number((
+                totalBruto - valorCombustivel
+            ).toFixed(2));
+
+            preencherCalculado('valor_combustivel', valorCombustivel, 2);
             preencherCalculado('total_bruto', totalBruto, 2);
             preencherCalculado('total_dia', totalLiquido, 2);
         }
@@ -231,13 +234,13 @@
             const indrive = pegarNumero('indrive');
             const outros = pegarNumero('outros');
             const kmsRodados = pegarNumero('kms_rodados');
-            const valorCombustivel = pegarNumero('valor_combustivel');
             const valorLitro = pegarNumero('valor_litro');
+            const quantidadeLitros = pegarNumero('quantidade_litros');
 
-            // Calculados automaticamente, sem o usuário preencher.
-            const quantidadeLitros = valorLitro > 0
-                ? Number((valorCombustivel / valorLitro).toFixed(2))
-                : 0;
+            // O usuário informa os litros; o gasto é calculado automaticamente.
+            const valorCombustivel = Number((
+                quantidadeLitros * valorLitro
+            ).toFixed(2));
 
             const totalDia = Number((
                 uber +
