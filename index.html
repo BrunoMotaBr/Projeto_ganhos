@@ -36,6 +36,7 @@
         .form-group { margin-bottom: 12px; }
         .form-group label { display: block; font-weight: bold; margin-bottom: 5px; font-size: 0.9rem; }
         .form-group input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 1rem; inputmode: decimal; }
+        .form-group input[readonly] { background-color: #eef1f4; color: #555; cursor: not-allowed; }
         .form-actions { display: flex; gap: 10px; margin-top: 20px; }
     </style>
 </head>
@@ -85,43 +86,57 @@
                     <label for="dia">Data (Dia):</label>
                     <input type="date" id="dia" required>
                 </div>
+
                 <div class="form-group">
                     <label for="uber">Uber (R$):</label>
-                    <input type="number" id="uber" step="0.01" min="0" value="0.00">
+                    <input type="number" id="uber" step="0.01" min="0" value="0.00" data-calculo>
                 </div>
+
                 <div class="form-group">
                     <label for="noventa_nove">99 App (R$):</label>
-                    <input type="number" id="noventa_nove" step="0.01" min="0" value="0.00">
+                    <input type="number" id="noventa_nove" step="0.01" min="0" value="0.00" data-calculo>
                 </div>
+
                 <div class="form-group">
                     <label for="indrive">InDrive (R$):</label>
-                    <input type="number" id="indrive" step="0.01" min="0" value="0.00">
+                    <input type="number" id="indrive" step="0.01" min="0" value="0.00" data-calculo>
                 </div>
+
                 <div class="form-group">
                     <label for="outros">Outros (R$):</label>
-                    <input type="number" id="outros" step="0.01" min="0" value="0.00">
+                    <input type="number" id="outros" step="0.01" min="0" value="0.00" data-calculo>
                 </div>
+
                 <div class="form-group">
                     <label for="kms_rodados">KMs Rodados:</label>
                     <input type="number" id="kms_rodados" step="0.1" min="0" value="0.0">
                 </div>
+
                 <div class="form-group">
                     <label for="valor_combustivel">Gasto Combustível (R$):</label>
-                    <input type="number" id="valor_combustivel" step="0.01" min="0" value="0.00">
+                    <input type="number" id="valor_combustivel" step="0.01" min="0" value="0.00" data-calculo>
                 </div>
+
                 <div class="form-group">
                     <label for="valor_litro">Preço do Litro (R$):</label>
-                    <input type="number" id="valor_litro" step="0.001" min="0" value="0.000">
+                    <input type="number" id="valor_litro" step="0.001" min="0" value="0.000" data-calculo>
                 </div>
+
                 <div class="form-group">
-                    <label for="quantidade_litros">Quantidade Litros:</label>
-                    <input type="number" id="quantidade_litros" step="0.01" min="0" value="0.00">
+                    <label for="quantidade_litros">Quantidade de litros (calculada):</label>
+                    <input type="number" id="quantidade_litros" step="0.01" readonly value="0.00">
                 </div>
+
                 <div class="form-group">
-                    <label for="total_dia">Total Líquido do Dia (R$):</label>
-                    <input type="number" id="total_dia" step="0.01" value="0.00">
+                    <label for="total_bruto">Total bruto (calculado):</label>
+                    <input type="number" id="total_bruto" step="0.01" readonly value="0.00">
                 </div>
-                
+
+                <div class="form-group">
+                    <label for="total_dia">Total líquido do dia (calculado):</label>
+                    <input type="number" id="total_dia" step="0.01" readonly value="0.00">
+                </div>
+
                 <div class="form-actions">
                     <button type="button" class="btn-danger" onclick="fecharModal()">Cancelar</button>
                     <button type="submit" class="btn-success">Salvar</button>
@@ -129,49 +144,183 @@
             </form>
         </div>
     </div>
-
     <script>
         const urlApi = '/api/ganhos';
 
+        function pegarDataHoje() {
+            const agora = new Date();
+            const fusoHorario = agora.getTimezoneOffset() * 60000;
+
+            return new Date(agora.getTime() - fusoHorario)
+                .toISOString()
+                .split('T')[0];
+        }
+
+        function pegarNumero(id) {
+            const campo = document.getElementById(id);
+            const valor = String(campo.value || '')
+                .trim()
+                .replace(',', '.');
+
+            const numero = Number(valor || 0);
+
+            return Number.isFinite(numero) ? numero : 0;
+        }
+
+        function preencherCalculado(id, valor, casasDecimais = 2) {
+            document.getElementById(id).value = Number(valor).toFixed(casasDecimais);
+        }
+
+        function calcularValores() {
+            const uber = pegarNumero('uber');
+            const noventaNove = pegarNumero('noventa_nove');
+            const indrive = pegarNumero('indrive');
+            const outros = pegarNumero('outros');
+            const valorCombustivel = pegarNumero('valor_combustivel');
+            const valorLitro = pegarNumero('valor_litro');
+
+            const totalBruto = uber + noventaNove + indrive + outros;
+            const quantidadeLitros = valorLitro > 0
+                ? valorCombustivel / valorLitro
+                : 0;
+            const totalLiquido = totalBruto - valorCombustivel;
+
+            preencherCalculado('quantidade_litros', quantidadeLitros, 2);
+            preencherCalculado('total_bruto', totalBruto, 2);
+            preencherCalculado('total_dia', totalLiquido, 2);
+        }
+
         function abrirModal() {
+            const formulario = document.getElementById('meuFormulario');
+
+            formulario.reset();
+            document.getElementById('dia').value = pegarDataHoje();
+            calcularValores();
+
             document.getElementById('modalForm').style.display = 'block';
-            document.getElementById('dia').value = new Date().toISOString().split('T')[0];
         }
 
         function fecharModal() {
             document.getElementById('modalForm').style.display = 'none';
             document.getElementById('meuFormulario').reset();
+            calcularValores();
         }
 
-        window.onclick = function(event) {
+        window.onclick = function (event) {
             const modal = document.getElementById('modalForm');
-            if (event.target == modal) {
+
+            if (event.target === modal) {
                 fecharModal();
+            }
+        };
+
+        async function salvarGanhos(event) {
+            event.preventDefault();
+
+            const formulario = document.getElementById('meuFormulario');
+            const mensagemErro = document.getElementById('mensagem-erro');
+            const botaoSalvar = formulario.querySelector('button[type="submit"]');
+
+            if (!formulario.checkValidity()) {
+                formulario.reportValidity();
+                return;
+            }
+
+            calcularValores();
+
+            // O formulário envia apenas dados digitados.
+            // quantidade_litros e total_dia são calculados pela API.
+            const dados = {
+                dia: document.getElementById('dia').value,
+                uber: pegarNumero('uber'),
+                noventa_nove: pegarNumero('noventa_nove'),
+                indrive: pegarNumero('indrive'),
+                outros: pegarNumero('outros'),
+                kms_rodados: pegarNumero('kms_rodados'),
+                valor_combustivel: pegarNumero('valor_combustivel'),
+                valor_litro: pegarNumero('valor_litro')
+            };
+
+            try {
+                mensagemErro.innerText = '';
+                botaoSalvar.disabled = true;
+                botaoSalvar.innerText = 'Salvando...';
+
+                const resposta = await fetch(urlApi, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(dados)
+                });
+
+                const respostaJson = await resposta.json().catch(() => null);
+
+                if (!resposta.ok) {
+                    throw new Error(
+                        respostaJson?.error ||
+                        `Não foi possível salvar. Código: ${resposta.status}`
+                    );
+                }
+
+                fecharModal();
+                await buscarGanhos();
+
+                alert('Ganho diário salvo com sucesso!');
+            } catch (erro) {
+                console.error('Erro ao salvar:', erro);
+                mensagemErro.innerText = erro.message || 'Não foi possível salvar os dados.';
+            } finally {
+                botaoSalvar.disabled = false;
+                botaoSalvar.innerText = 'Salvar';
             }
         }
 
         async function buscarGanhos() {
             const corpoTabela = document.getElementById('tabela-corpo');
             const containerErro = document.getElementById('mensagem-erro');
-            
-            containerErro.innerText = ''; 
-            corpoTabela.innerHTML = '<tr><td colspan="10" style="text-align: center;">Carregando dados...</td></tr>';
+
+            containerErro.innerText = '';
+            corpoTabela.innerHTML = `
+                <tr>
+                    <td colspan="10" style="text-align: center;">
+                        Carregando dados...
+                    </td>
+                </tr>
+            `;
 
             try {
                 const resposta = await fetch(urlApi);
-                if (!resposta.ok) throw new Error(`Erro na requisição: ${resposta.status}`);
+
+                if (!resposta.ok) {
+                    throw new Error(`Erro na requisição: ${resposta.status}`);
+                }
 
                 const listaGanhos = await resposta.json();
+
                 corpoTabela.innerHTML = '';
 
-                if (listaGanhos.length === 0) {
-                    corpoTabela.innerHTML = '<tr><td colspan="10" style="text-align: center;">Nenhum registro encontrado.</td></tr>';
+                if (!listaGanhos.length) {
+                    corpoTabela.innerHTML = `
+                        <tr>
+                            <td colspan="10" style="text-align: center;">
+                                Nenhum registro encontrado.
+                            </td>
+                        </tr>
+                    `;
+
                     return;
                 }
 
-                listaGanhos.forEach(ganho => {
+                listaGanhos.forEach((ganho) => {
                     const linha = document.createElement('tr');
-                    const dataFormatada = ganho.dia ? new Date(ganho.dia).toLocaleDateString('pt-BR', {timeZone: 'UTC'}) : 'N/A';
+
+                    const dataFormatada = ganho.dia
+                        ? new Date(ganho.dia).toLocaleDateString('pt-BR', {
+                            timeZone: 'UTC'
+                        })
+                        : 'N/A';
 
                     linha.innerHTML = `
                         <td>${dataFormatada}</td>
@@ -183,17 +332,36 @@
                         <td>R$ ${Number(ganho.valor_combustivel).toFixed(2)}</td>
                         <td>R$ ${Number(ganho.valor_litro).toFixed(3)}</td>
                         <td>${Number(ganho.quantidade_litros).toFixed(2)} L</td>
-                        <td style="font-weight: bold; color: ${ganho.total_dia >= 0 ? 'green' : 'red'}">
+                        <td style="font-weight: bold; color: ${Number(ganho.total_dia) >= 0 ? 'green' : 'red'}">
                             R$ ${Number(ganho.total_dia).toFixed(2)}
                         </td>
                     `;
+
                     corpoTabela.appendChild(linha);
                 });
-
             } catch (erro) {
                 console.error('Erro ao buscar dados:', erro);
+
                 containerErro.innerText = 'Não foi possível carregar os dados.';
-                corpoTabela.innerHTML = 'Erro ao carregar dados.';
+                corpoTabela.innerHTML = `
+                    <tr>
+                        <td colspan="10" style="text-align: center;">
+                            Erro ao carregar dados.
+                        </td>
+                    </tr>
+                `;
             }
         }
-</script>
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document
+                .querySelectorAll('[data-calculo]')
+                .forEach((campo) => campo.addEventListener('input', calcularValores));
+
+            calcularValores();
+            buscarGanhos();
+        });
+    </script>
+    
+</body>
+</html>
