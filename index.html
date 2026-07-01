@@ -226,19 +226,38 @@
                 return;
             }
 
-            calcularValores();
+            const uber = pegarNumero('uber');
+            const noventaNove = pegarNumero('noventa_nove');
+            const indrive = pegarNumero('indrive');
+            const outros = pegarNumero('outros');
+            const kmsRodados = pegarNumero('kms_rodados');
+            const valorCombustivel = pegarNumero('valor_combustivel');
+            const valorLitro = pegarNumero('valor_litro');
 
-            // O formulário envia apenas dados digitados.
-            // quantidade_litros e total_dia são calculados pela API.
+            // Calculados automaticamente, sem o usuário preencher.
+            const quantidadeLitros = valorLitro > 0
+                ? Number((valorCombustivel / valorLitro).toFixed(2))
+                : 0;
+
+            const totalDia = Number((
+                uber +
+                noventaNove +
+                indrive +
+                outros -
+                valorCombustivel
+            ).toFixed(2));
+
             const dados = {
                 dia: document.getElementById('dia').value,
-                uber: pegarNumero('uber'),
-                noventa_nove: pegarNumero('noventa_nove'),
-                indrive: pegarNumero('indrive'),
-                outros: pegarNumero('outros'),
-                kms_rodados: pegarNumero('kms_rodados'),
-                valor_combustivel: pegarNumero('valor_combustivel'),
-                valor_litro: pegarNumero('valor_litro')
+                uber,
+                noventa_nove: noventaNove,
+                indrive,
+                outros,
+                kms_rodados: kmsRodados,
+                valor_combustivel: valorCombustivel,
+                valor_litro: valorLitro,
+                quantidade_litros: quantidadeLitros,
+                total_dia: totalDia
             };
 
             try {
@@ -246,31 +265,30 @@
                 botaoSalvar.disabled = true;
                 botaoSalvar.innerText = 'Salvando...';
 
-                const resposta = await fetch(urlApi, {
+                const resposta = await fetch('/api/ganhos', {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json'
+                        'Content-Type': 'application/json'
                     },
                     body: JSON.stringify(dados)
                 });
 
-                const respostaJson = await resposta.json().catch(() => null);
+                const resultado = await resposta.json().catch(() => null);
 
                 if (!resposta.ok) {
                     throw new Error(
-                        respostaJson?.error ||
-                        `Não foi possível salvar. Código: ${resposta.status}`
+                        resultado?.error || `Erro ao salvar: ${resposta.status}`
                     );
                 }
 
                 fecharModal();
                 await buscarGanhos();
 
-                alert('Ganho diário salvo com sucesso!');
+                alert('Registro salvo com sucesso!');
+
             } catch (erro) {
                 console.error('Erro ao salvar:', erro);
-                mensagemErro.innerText = erro.message || 'Não foi possível salvar os dados.';
+                mensagemErro.innerText = erro.message || 'Não foi possível salvar.';
             } finally {
                 botaoSalvar.disabled = false;
                 botaoSalvar.innerText = 'Salvar';
