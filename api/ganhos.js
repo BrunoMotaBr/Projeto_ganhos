@@ -1,5 +1,9 @@
 const { Pool } = require('pg');
 
+if (!process.env.DATABASE_URL) {
+    throw new Error('DATABASE_URL não foi configurada na Vercel.');
+}
+
 const pool = new Pool({
     connectionString: process.env.DATABASE_URL,
     ssl: {
@@ -79,7 +83,7 @@ module.exports = async (req, res) => {
         console.error('Erro na API:', error);
 
         return res.status(500).json({
-            error: 'Erro interno ao processar os ganhos.'
+            error: error.message
         });
     }
 };
