@@ -67,7 +67,7 @@ module.exports = async (req, res) => {
                 valor_litro,
                 quantidade_litros,
                 total_dia,
-                obs
+                obs || ""
             ];
 
             const { rows } = await pool.query(query, valores);
