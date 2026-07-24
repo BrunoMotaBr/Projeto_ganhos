@@ -75,6 +75,16 @@ module.exports = async (req, res) => {
             return res.status(201).json(rows[0]);
         }
 
+        if(req.method === 'DELETE'){
+            const {id} = req.body;
+
+            const { rows } = await pool.query(
+                'DELETE FROM faturamento_diario WHERE id = ($1);', id
+            );
+
+            return res.status(200).json(rows);
+        }
+
         return res.status(405).json({
             error: 'Método não permitido.'
         });
