@@ -28,7 +28,8 @@ module.exports = async (req, res) => {
                 valor_combustivel = 0,
                 valor_litro = 0,
                 quantidade_litros = 0,
-                total_dia = 0
+                total_dia = 0,
+                obs = ""
             } = req.body;
 
             if (!dia) {
@@ -48,9 +49,10 @@ module.exports = async (req, res) => {
                     valor_combustivel,
                     valor_litro,
                     quantidade_litros,
-                    total_dia
+                    total_dia,
+                    obs
                 )
-                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
                 RETURNING *
             `;
 
@@ -64,7 +66,8 @@ module.exports = async (req, res) => {
                 valor_combustivel,
                 valor_litro,
                 quantidade_litros,
-                total_dia
+                total_dia,
+                obs
             ];
 
             const { rows } = await pool.query(query, valores);
