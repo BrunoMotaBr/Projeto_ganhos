@@ -363,7 +363,7 @@
                             R$ ${Number(ganho.total_dia).toFixed(2)}
                         </td>
                         <td style="font-weight: bold; color: ${Number(ganho.total_dia) >= 0 ? 'green' : 'red'}">
-                            R$ ${ganho.obs}
+                            ${ganho.obs || ''}
                         </td>
                     `;
 
