@@ -22,7 +22,7 @@
         table { width: 100%; border-collapse: collapse; min-width: 900px; } /* Mantém largura mínima para não esmagar dados */
         th, td { border: 1px solid #dee2e6; padding: 12px 10px; text-align: left; font-size: 0.9rem; }
         th { background-color: #f1f3f5; font-weight: bold; }
-        tr:nth-child(odd) { background-color: #f8f9fa; }
+        tr:nth-child(even) { background-color: #f8f9fa; }
         .erro { color: #dc3545; font-weight: bold; margin-bottom: 15px; }
 
         /* Estilos do Modal */
@@ -361,6 +361,9 @@
                         <td>${Number(ganho.quantidade_litros).toFixed(2)} L</td>
                         <td style="font-weight: bold; color: ${Number(ganho.total_dia) >= 0 ? 'green' : 'red'}">
                             R$ ${Number(ganho.total_dia).toFixed(2)}
+                        </td>
+                        <td style="font-weight: bold; color: ${Number(ganho.total_dia) >= 0 ? 'green' : 'red'}">
+                            R$ ${ganho.obs}
                         </td>
                     `;
 
