@@ -22,7 +22,7 @@
         table { width: 100%; border-collapse: collapse; min-width: 900px; } /* Mantém largura mínima para não esmagar dados */
         th, td { border: 1px solid #dee2e6; padding: 12px 10px; text-align: left; font-size: 0.9rem; }
         th { background-color: #f1f3f5; font-weight: bold; }
-        tr:nth-child(even) { background-color: #f8f9fa; }
+        tr:nth-child(odd) { background-color: #f8f9fa; }
         .erro { color: #dc3545; font-weight: bold; margin-bottom: 15px; }
 
         /* Estilos do Modal */
@@ -311,7 +311,7 @@
             containerErro.innerText = '';
             corpoTabela.innerHTML = `
                 <tr>
-                    <td colspan="10" style="text-align: center;">
+                    <td colspan="11" style="text-align: center;">
                         Carregando dados...
                     </td>
                 </tr>
@@ -331,7 +331,7 @@
                 if (!listaGanhos.length) {
                     corpoTabela.innerHTML = `
                         <tr>
-                            <td colspan="10" style="text-align: center;">
+                            <td colspan="11" style="text-align: center;">
                                 Nenhum registro encontrado.
                             </td>
                         </tr>
@@ -372,7 +372,7 @@
                 containerErro.innerText = 'Não foi possível carregar os dados.';
                 corpoTabela.innerHTML = `
                     <tr>
-                        <td colspan="10" style="text-align: center;">
+                        <td colspan="11" style="text-align: center;">
                             Erro ao carregar dados.
                         </td>
                     </tr>
