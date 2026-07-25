@@ -38,6 +38,24 @@
         .form-group input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 1rem; inputmode: decimal; }
         .form-group input[readonly] { background-color: #eef1f4; color: #555; cursor: not-allowed; }
         .form-actions { display: flex; gap: 10px; margin-top: 20px; }
+
+        .bnt-exclusao{
+            font-size: 16px;
+            cursor: pointer;
+            position: relative;
+            opacity: 0.6;
+        }
+
+        .bnt-exclusao:hover{
+            opacity: 1;
+        }
+        
+        .bnt-exclusao span{
+            display: none;
+        }
+        .bnt-exclusao::before{
+            content: '🗑️';
+        }
     </style>
 </head>
 <body>
@@ -384,6 +402,36 @@
                         </td>
                     </tr>
                 `;
+            }
+        }
+
+        const bnt_exclusao = document.getElementById('bnt-exclusao');
+
+        bnt_exclusao.addEventListener('click', () => {
+            const id_ex = document.querySelector('.bnt-exclusao span');
+            excluir(id_ex.innerText);
+        });
+
+        async function excluir(id){
+
+            const dados = {
+                id: id
+            };
+
+            const resposta = await fetch('/api/ganhos', {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(dados)
+            });
+
+            const resultado = await resposta.json().catch(() => null);
+
+            if (!resposta.ok) {
+                throw new Error(
+                    resultado?.error || `Erro ao Deletar: ${resposta.status}`
+                );
             }
         }
 
