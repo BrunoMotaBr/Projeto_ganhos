@@ -200,6 +200,8 @@
             // Ordenar por data
             filtrados.sort((a, b) => a.dia.localeCompare(b.dia));
 
+            console.log(filtrados);
+
             corpoTabela.innerHTML = '';
             if (filtrados.length === 0) {
                 corpoTabela.innerHTML = '<tr><td colspan="11" style="text-align:center">Nenhum registro encontrado nesta semana.</td></tr>';
