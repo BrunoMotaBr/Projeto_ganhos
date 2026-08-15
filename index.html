@@ -169,6 +169,7 @@
             
             const domingo = new Date(segunda);
             domingo.setDate(segunda.getDate() + 6);
+            console.log(todosOsGanhos);
 
             tituloSemana.textContent = `${segunda.toLocaleDateString('pt-BR')} até ${domingo.toLocaleDateString('pt-BR')}`;
 
