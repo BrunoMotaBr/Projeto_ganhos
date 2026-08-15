@@ -81,6 +81,11 @@
                     <td colspan="11" style="text-align: center;">Buscando dados...</td>
                 </tr>
             </tbody>
+            <tfooter>
+                <tr>
+                    <td colspan="11" style="text-align: center;" id='soma'>R$ </td>
+                </tr>
+            </tfooter>
         </table>
     </div>
 
@@ -200,7 +205,17 @@
             // Ordenar por data
             filtrados.sort((a, b) => a.dia.localeCompare(b.dia));
 
-            console.log(filtrados);
+            console.log(filtrados[0].total_dia);
+            
+            let soma = 0;
+            
+            filtrados.foreach((i) => {
+                soma = soma + i.total_dia;
+            });
+            
+            document.getElementById('soma').innerHtml += soma;
+
+            
 
             corpoTabela.innerHTML = '';
             if (filtrados.length === 0) {
