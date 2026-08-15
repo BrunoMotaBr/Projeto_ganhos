@@ -2,7 +2,6 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <!-- Meta tag crucial para funcionar perfeitamente no celular -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Histórico de Ganhos</title>
     <style>
@@ -17,45 +16,28 @@
         .btn-success:hover { background-color: #218838; }
         .btn-danger { background-color: #dc3545; }
         
-        /* Container que permite rolagem horizontal da tabela no celular */
-        .table-responsive { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        table { width: 100%; border-collapse: collapse; min-width: 900px; } /* Mantém largura mínima para não esmagar dados */
+        .table-responsive { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); margin-bottom: 20px; }
+        table { width: 100%; border-collapse: collapse; min-width: 1000px; }
         th, td { border: 1px solid #dee2e6; padding: 12px 10px; text-align: left; font-size: 0.9rem; }
         th { background-color: #f1f3f5; font-weight: bold; }
         tr:nth-child(even) { background-color: #f8f9fa; }
+        
         .erro { color: #dc3545; font-weight: bold; margin-bottom: 15px; }
+        .paginacao { display: flex; align-items: center; justify-content: center; gap: 15px; margin-top: 20px; }
+        #intervalo-semana { font-weight: bold; }
 
-        /* Estilos do Modal */
+        /* Modal */
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); overflow-y: auto; padding: 10px; box-sizing: border-box; }
         .modal-content { background-color: white; margin: 20px auto; padding: 20px; border-radius: 8px; max-width: 500px; width: 100%; box-sizing: border-box; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
         .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 15px; }
-        .modal-header h3 { margin: 0; font-size: 1.3rem; }
-        .close-btn { font-size: 1.8rem; font-weight: bold; color: #aaa; cursor: pointer; background: none; border: none; padding: 0; width: auto; }
         
-        /* Estilos do Formulário dentro do Modal */
         .form-group { margin-bottom: 12px; }
         .form-group label { display: block; font-weight: bold; margin-bottom: 5px; font-size: 0.9rem; }
-        .form-group input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 1rem; inputmode: decimal; }
-        .form-group input[readonly] { background-color: #eef1f4; color: #555; cursor: not-allowed; }
+        .form-group input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 1rem; }
+        .form-group input[readonly] { background-color: #eef1f4; }
         .form-actions { display: flex; gap: 10px; margin-top: 20px; }
 
-        .bnt-exclusao{
-            font-size: 16px;
-            cursor: pointer;
-            position: relative;
-            opacity: 0.6;
-        }
-
-        .bnt-exclusao:hover{
-            opacity: 1;
-        }
-        
-        .bnt-exclusao span{
-            display: none;
-        }
-        .bnt-exclusao::before{
-            content: '🗑️';
-        }
+        .btn-excluir { background: none; border: none; cursor: pointer; font-size: 1.2rem; color: #dc3545; }
     </style>
 </head>
 <body>
@@ -69,6 +51,13 @@
 
     <div id="mensagem-erro" class="erro"></div>
 
+    <div class="paginacao">
+        <button onclick="mudarSemana(-7)" style="max-width: 100px;"> &lt; </button>
+        <span id="intervalo-semana">Carregando semana...</span>
+        <button onclick="mudarSemana(7)" style="max-width: 100px;"> &gt; </button>
+    </div>
+    <br>
+
     <div class="table-responsive">
         <table>
             <thead>
@@ -78,94 +67,38 @@
                     <th>99</th>
                     <th>InDrive</th>
                     <th>Outros</th>
-                    <th>KM Rodados</th>
-                    <th>Combustível</th>
-                    <th>Preço Litro</th>
+                    <th>KM</th>
+                    <th>Combust.</th>
+                    <th>Preço L</th>
                     <th>Litros</th>
                     <th>Total Líquido</th>
-                    <th>Observações</th>
+                    <th>Ações</th>
                 </tr>
             </thead>
             <tbody id="tabela-corpo">
                 <tr>
-                    <td colspan="11" style="text-align: center;">Clique em atualizar ou aguarde carregar...</td>
+                    <td colspan="11" style="text-align: center;">Clique em atualizar...</td>
                 </tr>
             </tbody>
         </table>
     </div>
-    
-    <div class="paginacao">
-        <button onclick="mudarSemana(-7)">Semana Anterior</button>
-        <button onclick="mudarSemana(7)">Próxima Semana</button>
-    </div>
 
+    <!-- Modal Form -->
     <div id="modalForm" class="modal">
         <div class="modal-content">
-            <div class="modal-header">
-                <h3>Cadastrar Ganho Diário</h3>
-            </div>
-            
+            <div class="modal-header"><h3>Cadastrar Ganho Diário</h3></div>
             <form id="meuFormulario" onsubmit="salvarGanhos(event)">
-                <div class="form-group">
-                    <label for="dia">Data (Dia):</label>
-                    <input type="date" id="dia" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="uber">Uber (R$):</label>
-                    <input type="number" id="uber" step="0.01" min="0" value="0.00" data-calculo>
-                </div>
-
-                <div class="form-group">
-                    <label for="noventa_nove">99 App (R$):</label>
-                    <input type="number" id="noventa_nove" step="0.01" min="0" value="0.00" data-calculo>
-                </div>
-
-                <div class="form-group">
-                    <label for="indrive">InDrive (R$):</label>
-                    <input type="number" id="indrive" step="0.01" min="0" value="0.00" data-calculo>
-                </div>
-
-                <div class="form-group">
-                    <label for="outros">Outros (R$):</label>
-                    <input type="number" id="outros" step="0.01" value="0.00" data-calculo>
-                </div>
-
-                <div class="form-group">
-                    <label for="kms_rodados">KMs Rodados:</label>
-                    <input type="number" id="kms_rodados" step="0.1" min="0" value="0.0">
-                </div>
-
-                <div class="form-group">
-                    <label for="valor_litro">Preço do litro (R$):</label>
-                    <input type="number" id="valor_litro" step="0.001" min="0" value="0.000" data-calculo>
-                </div>
-
-                <div class="form-group">
-                    <label for="quantidade_litros">Quantidade de litros:</label>
-                    <input type="number" id="quantidade_litros" step="0.01" min="0" value="0.00" data-calculo>
-                </div>
-
-                <div class="form-group">
-                    <label for="valor_combustivel">Gasto com combustível (calculado):</label>
-                    <input type="number" id="valor_combustivel" step="0.01" readonly value="0.00">
-                </div>
-
-                <div class="form-group">
-                    <label for="total_bruto">Total bruto (calculado):</label>
-                    <input type="number" id="total_bruto" step="0.01" readonly value="0.00">
-                </div>
-
-                <div class="form-group">
-                    <label for="total_dia">Total líquido do dia (calculado):</label>
-                    <input type="number" id="total_dia" step="0.01" readonly value="0.00">
-                </div>
-
-                <div class="form-group">
-                    <label for="obs">Observações:</label>
-                    <input type="text" id="obs">
-                </div>
-
+                <div class="form-group"><label>Data:</label><input type="date" id="dia" required></div>
+                <div class="form-group"><label>Uber (R$):</label><input type="number" id="uber" step="0.01" value="0.00" data-calculo></div>
+                <div class="form-group"><label>99 App (R$):</label><input type="number" id="noventa_nove" step="0.01" value="0.00" data-calculo></div>
+                <div class="form-group"><label>InDrive (R$):</label><input type="number" id="indrive" step="0.01" value="0.00" data-calculo></div>
+                <div class="form-group"><label>Outros (R$):</label><input type="number" id="outros" step="0.01" value="0.00" data-calculo></div>
+                <div class="form-group"><label>KMs Rodados:</label><input type="number" id="kms_rodados" step="0.1" value="0.0"></div>
+                <div class="form-group"><label>Preço litro (R$):</label><input type="number" id="valor_litro" step="0.001" value="0.000" data-calculo></div>
+                <div class="form-group"><label>Quantidade litros:</label><input type="number" id="quantidade_litros" step="0.01" value="0.00" data-calculo></div>
+                <div class="form-group"><label>Total líquido (R$):</label><input type="number" id="total_dia" step="0.01" readonly></div>
+                <div class="form-group"><label>Obs:</label><input type="text" id="obs"></div>
+                
                 <div class="form-actions">
                     <button type="button" class="btn-danger" onclick="fecharModal()">Cancelar</button>
                     <button type="submit" class="btn-success">Salvar</button>
@@ -173,290 +106,155 @@
             </form>
         </div>
     </div>
+
     <script>
         const urlApi = '/api/ganhos';
+        let dataReferencia = new Date();
+        let todosOsGanhos = [];
 
-        function pegarDataHoje() {
-            const agora = new Date();
-            const fusoHorario = agora.getTimezoneOffset() * 60000;
+        // --- Funções Auxiliares ---
+        const zerarHoras = (d) => new Date(d.getFullYear(), d.getMonth(), d.getDate());
 
-            return new Date(agora.getTime() - fusoHorario)
-                .toISOString()
-                .split('T')[0];
+        function formatarMoeda(valor) {
+            return Number(valor).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
         }
 
         function pegarNumero(id) {
-            const campo = document.getElementById(id);
-            const valor = String(campo.value || '')
-                .trim()
-                .replace(',', '.');
-
-            const numero = Number(valor || 0);
-
-            return Number.isFinite(numero) ? numero : 0;
-        }
-
-        function preencherCalculado(id, valor, casasDecimais = 2) {
-            document.getElementById(id).value = Number(valor).toFixed(casasDecimais);
+            const valor = document.getElementById(id).value.replace(',', '.');
+            return parseFloat(valor) || 0;
         }
 
         function calcularValores() {
-            const uber = pegarNumero('uber');
-            const noventaNove = pegarNumero('noventa_nove');
-            const indrive = pegarNumero('indrive');
-            const outros = pegarNumero('outros');
-            const valorLitro = pegarNumero('valor_litro');
-            const quantidadeLitros = pegarNumero('quantidade_litros');
-
-            const totalBruto = uber + noventaNove + indrive + outros;
-            const valorCombustivel = Number((
-                quantidadeLitros * valorLitro
-            ).toFixed(2));
-
-            const totalLiquido = Number((
-                totalBruto - valorCombustivel
-            ).toFixed(2));
-
-            preencherCalculado('valor_combustivel', valorCombustivel, 2);
-            preencherCalculado('total_bruto', totalBruto, 2);
-            preencherCalculado('total_dia', totalLiquido, 2);
+            const totalBruto = pegarNumero('uber') + pegarNumero('noventa_nove') + pegarNumero('indrive') + pegarNumero('outros');
+            const gastoCombustivel = pegarNumero('valor_litro') * pegarNumero('quantidade_litros');
+            document.getElementById('total_dia').value = (totalBruto - gastoCombustivel).toFixed(2);
         }
 
+        // --- Modal ---
         function abrirModal() {
-            const formulario = document.getElementById('meuFormulario');
-
-            formulario.reset();
-            document.getElementById('dia').value = pegarDataHoje();
-            calcularValores();
-
+            document.getElementById('meuFormulario').reset();
+            document.getElementById('dia').value = new Date().toISOString().split('T')[0];
             document.getElementById('modalForm').style.display = 'block';
+            calcularValores();
         }
 
         function fecharModal() {
             document.getElementById('modalForm').style.display = 'none';
-            document.getElementById('meuFormulario').reset();
-            calcularValores();
         }
 
-        window.onclick = function (event) {
-            const modal = document.getElementById('modalForm');
-
-            if (event.target === modal) {
-                fecharModal();
+        // --- API ---
+        async function buscarGanhos() {
+            const corpoTabela = document.getElementById('tabela-corpo');
+            try {
+                const resposta = await fetch(urlApi);
+                if (!resposta.ok) throw new Error('Erro ao buscar dados');
+                todosOsGanhos = await resposta.json();
+                renderizarSemana();
+            } catch (erro) {
+                console.error(erro);
+                document.getElementById('mensagem-erro').innerText = 'Erro ao carregar dados da API.';
             }
-        };
+        }
 
-        async function salvarGanhos(event) {
-            event.preventDefault();
+        function renderizarSemana() {
+            const corpoTabela = document.getElementById('tabela-corpo');
+            const tituloSemana = document.getElementById('intervalo-semana');
+            
+            // Lógica de cálculo da semana (Segunda a Domingo)
+            const diaSemana = dataReferencia.getDay();
+            const diffSegunda = diaSemana === 0 ? -6 : 1 - diaSemana;
+            
+            const segunda = zerarHoras(new Date(dataReferencia));
+            segunda.setDate(dataReferencia.getDate() + diffSegunda);
+            
+            const domingo = new Date(segunda);
+            domingo.setDate(segunda.getDate() + 6);
 
-            const formulario = document.getElementById('meuFormulario');
-            const mensagemErro = document.getElementById('mensagem-erro');
-            const botaoSalvar = formulario.querySelector('button[type="submit"]');
+            tituloSemana.textContent = `${segunda.toLocaleDateString('pt-BR')} até ${domingo.toLocaleDateString('pt-BR')}`;
 
-            if (!formulario.checkValidity()) {
-                formulario.reportValidity();
+            const filtrados = todosOsGanhos.filter(item => {
+                const dataItem = new Date(item.dia + "T00:00:00");
+                return dataItem >= segunda && dataItem <= domingo;
+            });
+
+            corpoTabela.innerHTML = '';
+            if (filtrados.length === 0) {
+                corpoTabela.innerHTML = '<tr><td colspan="11" style="text-align:center">Nenhum dado nesta semana.</td></tr>';
                 return;
             }
 
-            const uber = pegarNumero('uber');
-            const noventaNove = pegarNumero('noventa_nove');
-            const indrive = pegarNumero('indrive');
-            const outros = pegarNumero('outros');
-            const kmsRodados = pegarNumero('kms_rodados');
-            const valorLitro = pegarNumero('valor_litro');
-            const quantidadeLitros = pegarNumero('quantidade_litros');
+            filtrados.forEach(item => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${new Date(item.dia + "T00:00:00").toLocaleDateString('pt-BR')}</td>
+                    <td>${formatarMoeda(item.uber)}</td>
+                    <td>${formatarMoeda(item.noventa_nove)}</td>
+                    <td>${formatarMoeda(item.indrive)}</td>
+                    <td>${formatarMoeda(item.outros)}</td>
+                    <td>${item.kms_rodados}</td>
+                    <td>${formatarMoeda(item.valor_combustivel)}</td>
+                    <td>${formatarMoeda(item.valor_litro)}</td>
+                    <td>${item.quantidade_litros}</td>
+                    <td style="font-weight:bold">${formatarMoeda(item.total_dia)}</td>
+                    <td><button class="btn-excluir" onclick="excluir('${item.id || item._id}')">🗑️</button></td>
+                `;
+                corpoTabela.appendChild(tr);
+            });
+        }
 
-            // O usuário informa os litros; o gasto é calculado automaticamente.
-            const valorCombustivel = Number((
-                quantidadeLitros * valorLitro
-            ).toFixed(2));
+        function mudarSemana(dias) {
+            dataReferencia.setDate(dataReferencia.getDate() + dias);
+            renderizarSemana();
+        }
 
-            const totalDia = Number((
-                uber +
-                noventaNove +
-                indrive +
-                outros -
-                valorCombustivel
-            ).toFixed(2));
-
+        async function salvarGanhos(event) {
+            event.preventDefault();
             const dados = {
                 dia: document.getElementById('dia').value,
-                uber,
-                noventa_nove: noventaNove,
-                indrive,
-                outros,
-                kms_rodados: kmsRodados,
-                valor_combustivel: valorCombustivel,
-                valor_litro: valorLitro,
-                quantidade_litros: quantidadeLitros,
-                total_dia: totalDia,
+                uber: pegarNumero('uber'),
+                noventa_nove: pegarNumero('noventa_nove'),
+                indrive: pegarNumero('indrive'),
+                outros: pegarNumero('outros'),
+                kms_rodados: pegarNumero('kms_rodados'),
+                valor_litro: pegarNumero('valor_litro'),
+                quantidade_litros: pegarNumero('quantidade_litros'),
+                valor_combustivel: pegarNumero('valor_litro') * pegarNumero('quantidade_litros'),
+                total_dia: pegarNumero('total_dia'),
                 obs: document.getElementById('obs').value
             };
 
             try {
-                mensagemErro.innerText = '';
-                botaoSalvar.disabled = true;
-                botaoSalvar.innerText = 'Salvando...';
-
-                const resposta = await fetch('/api/ganhos', {
+                const resp = await fetch(urlApi, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(dados)
                 });
-
-                const resultado = await resposta.json().catch(() => null);
-
-                if (!resposta.ok) {
-                    throw new Error(
-                        resultado?.error || `Erro ao salvar: ${resposta.status}`
-                    );
+                if (resp.ok) {
+                    fecharModal();
+                    buscarGanhos();
                 }
-
-                fecharModal();
-                await buscarGanhos();
-
-                alert('Registro salvo com sucesso!');
-
-            } catch (erro) {
-                console.error('Erro ao salvar:', erro);
-                mensagemErro.innerText = erro.message || 'Não foi possível salvar.';
-            } finally {
-                botaoSalvar.disabled = false;
-                botaoSalvar.innerText = 'Salvar';
-            }
+            } catch (e) { alert("Erro ao salvar"); }
         }
 
-        async function buscarGanhos() {
-            const corpoTabela = document.getElementById('tabela-corpo');
-            const containerErro = document.getElementById('mensagem-erro');
-
-            containerErro.innerText = '';
-            corpoTabela.innerHTML = `
-                <tr>
-                    <td colspan="11" style="text-align: center;">
-                        Carregando dados...
-                    </td>
-                </tr>
-            `;
-
+        async function excluir(id) {
+            if (!confirm("Excluir este registro?")) return;
             try {
-                const resposta = await fetch(urlApi);
-
-                let dataReferencia = new Date();
-                
-                const zerarHora = (d) => {d.getFullYear(), d.getMonth(), d.getDate()};
-
-                if (!resposta.ok) {
-                    throw new Error(`Erro na requisição: ${resposta.status}`);
-                }
-
-                const listaGanhos = await resposta.json();
-
-                corpoTabela.innerHTML = '';
-
-                if (!listaGanhos.length) {
-                    corpoTabela.innerHTML = `
-                        <tr>
-                            <td colspan="11" style="text-align: center;">
-                                Nenhum registro encontrado.
-                            </td>
-                        </tr>
-                    `;
-
-                    return;
-                }
-
-                function renderizarSemana() {
-                    const container = document.getElementById("lista-conteudo");
-                    const tituloSemana = document.getElementById("intervalo-semana");
-                    container.innerHTML = "";
-
-                    // 3. Descobrir o dia da semana atual (0 = Domingo, 1 = Segunda, ..., 6 = Sábado)
-                    const diaSemanaAtual = dataReferencia.getDay();
-                    
-                    // Calcular quantos dias faltam/passaram para chegar na Segunda e no Domingo
-                    const distanciaParaSegunda = diaSemanaAtual === 0 ? -6 : 1 - diaSemanaAtual;
-                    const distanciaParaDomingo = diaSemanaAtual === 0 ? 0 : 7 - diaSemanaAtual;
-
-                    // Gerar os objetos de data exatos da Segunda e do Domingo desta página
-                    const segundaFeira = zerarHoras(new Date(dataReferencia));
-                    segundaFeira.setDate(dataReferencia.getDate() + distanciaParaSegunda);
-
-                    const domingo = zerarHoras(new Date(dataReferencia));
-                    domingo.setDate(dataReferencia.getDate() + distanciaParaDomingo);
-
-                    // Exibir as datas formatadas no título da página
-                    const formatador = new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: '2-digit' });
-                    tituloSemana.textContent = `Semana: ${formatador.format(segundaFeira)} até ${formatador.format(domingo)}`;
-
-                    // 4. Filtrar os dados que pertencem a este intervalo de Segunda a Domingo
-                    const dadosFiltrados = listaGanhos.filter(item => {
-                        const dataItem = zerarHoras(new Date(item.data));
-                        return dataItem >= segundaFeira && dataItem <= domingo;
+                await fetch(urlApi, {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id })
                 });
-
-                function mudarSemana(dias) {
-                    dataReferencia.setDate(dataReferencia.getDate() + dias);
-                    renderizarSemana();
-                }
-                renderizarSemana();
-            } catch (erro) {
-                console.error('Erro ao buscar dados:', erro);
-
-                containerErro.innerText = 'Não foi possível carregar os dados.';
-                corpoTabela.innerHTML = `
-                    <tr>
-                        <td colspan="11" style="text-align: center;">
-                            Erro ao carregar dados.
-                        </td>
-                    </tr>
-                `;
-            }
+                buscarGanhos();
+            } catch (e) { alert("Erro ao excluir"); }
         }
 
-        /*document.addEventListener('DOMContentLoaded', () => {
-            const bnt_exclusao = document.getElementById('bnt-exclusao');
-    
-            bnt_exclusao.addEventListener('click', () => {
-                const id_ex = document.querySelector('.bnt-exclusao span');
-                excluir(id_ex.innerText);
-            });
-        });*/
-
-        async function excluir(id){
-
-            const dados = {
-                id: id
-            };
-
-            const resposta = await fetch('/api/ganhos', {
-                method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(dados)
-            });
-
-            const resultado = await resposta.json().catch(() => null);
-
-            if (!resposta.ok) {
-                throw new Error(
-                    resultado?.error || `Erro ao Deletar: ${resposta.status}`
-                );
-            }
-        }
-
+        // --- Inicialização ---
         document.addEventListener('DOMContentLoaded', () => {
-            document
-                .querySelectorAll('[data-calculo]')
-                .forEach((campo) => campo.addEventListener('input', calcularValores));
-
-            calcularValores();
+            document.querySelectorAll('[data-calculo]').forEach(i => i.addEventListener('input', calcularValores));
             buscarGanhos();
         });
+
+        window.onclick = (e) => { if (e.target == document.getElementById('modalForm')) fecharModal(); };
     </script>
-    
 </body>
 </html>
