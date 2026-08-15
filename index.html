@@ -93,6 +93,11 @@
             </tbody>
         </table>
     </div>
+    
+    <div class="paginacao">
+        <button onclick="mudarSemana(-7)">Semana Anterior</button>
+        <button onclick="mudarSemana(7)">Próxima Semana</button>
+    </div>
 
     <div id="modalForm" class="modal">
         <div class="modal-content">
@@ -339,6 +344,10 @@
             try {
                 const resposta = await fetch(urlApi);
 
+                let dataReferencia = new Date();
+                
+                const zerarHora = (d) => {d.getFullYear(), d.getMonth(), d.getDate()};
+
                 if (!resposta.ok) {
                     throw new Error(`Erro na requisição: ${resposta.status}`);
                 }
@@ -359,38 +368,40 @@
                     return;
                 }
 
-                listaGanhos.forEach((ganho) => {
-                    const linha = document.createElement('tr');
+                function renderizarSemana() {
+                    const container = document.getElementById("lista-conteudo");
+                    const tituloSemana = document.getElementById("intervalo-semana");
+                    container.innerHTML = "";
 
-                    const dataFormatada = ganho.dia
-                        ? new Date(ganho.dia).toLocaleDateString('pt-BR', {
-                            timeZone: 'UTC'
-                        })
-                        : 'N/A';
+                    // 3. Descobrir o dia da semana atual (0 = Domingo, 1 = Segunda, ..., 6 = Sábado)
+                    const diaSemanaAtual = dataReferencia.getDay();
+                    
+                    // Calcular quantos dias faltam/passaram para chegar na Segunda e no Domingo
+                    const distanciaParaSegunda = diaSemanaAtual === 0 ? -6 : 1 - diaSemanaAtual;
+                    const distanciaParaDomingo = diaSemanaAtual === 0 ? 0 : 7 - diaSemanaAtual;
 
-                    linha.innerHTML = `
-                        <td>${dataFormatada}</td>
-                        <td>R$ ${Number(ganho.uber).toFixed(2)}</td>
-                        <td>R$ ${Number(ganho.noventa_nove).toFixed(2)}</td>
-                        <td>R$ ${Number(ganho.indrive).toFixed(2)}</td>
-                        <td>R$ ${Number(ganho.outros).toFixed(2)}</td>
-                        <td>${Number(ganho.kms_rodados).toFixed(1)} km</td>
-                        <td>R$ ${Number(ganho.valor_combustivel).toFixed(2)}</td>
-                        <td>R$ ${Number(ganho.valor_litro).toFixed(3)}</td>
-                        <td>${Number(ganho.quantidade_litros).toFixed(2)} L</td>
-                        <td style="font-weight: bold; color: ${Number(ganho.total_dia) >= 0 ? 'green' : 'red'}">
-                            R$ ${Number(ganho.total_dia).toFixed(2)}
-                        </td>
-                        <td>
-                            ${ganho.obs || ''}
-                        </td>
-                        <td class="bnt-exclusao" id="bnt-exclusao">
-                            <span>${ganho.id}</span>
-                        </td>
-                    `;
+                    // Gerar os objetos de data exatos da Segunda e do Domingo desta página
+                    const segundaFeira = zerarHoras(new Date(dataReferencia));
+                    segundaFeira.setDate(dataReferencia.getDate() + distanciaParaSegunda);
 
-                    corpoTabela.appendChild(linha);
+                    const domingo = zerarHoras(new Date(dataReferencia));
+                    domingo.setDate(dataReferencia.getDate() + distanciaParaDomingo);
+
+                    // Exibir as datas formatadas no título da página
+                    const formatador = new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: '2-digit' });
+                    tituloSemana.textContent = `Semana: ${formatador.format(segundaFeira)} até ${formatador.format(domingo)}`;
+
+                    // 4. Filtrar os dados que pertencem a este intervalo de Segunda a Domingo
+                    const dadosFiltrados = listaGanhos.filter(item => {
+                        const dataItem = zerarHoras(new Date(item.data));
+                        return dataItem >= segundaFeira && dataItem <= domingo;
                 });
+
+                function mudarSemana(dias) {
+                    dataReferencia.setDate(dataReferencia.getDate() + dias);
+                    renderizarSemana();
+                }
+                renderizarSemana();
             } catch (erro) {
                 console.error('Erro ao buscar dados:', erro);
 
