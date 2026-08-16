@@ -227,26 +227,6 @@
                 combustivel = combustivel + Number(i.valor_combustivel || 0);
             });
             
-            const tf = document.createElement('tr');
-            tf.innerHTML = `
-                <td>#####</td>
-                <td>${formatarMoeda(somaUber)}</td>
-                <td>${formatarMoeda(soma99)}</td>
-                <td>${formatarMoeda(somaIndrive)}</td>
-                <td>${formatarMoeda(somaOutros)}</td>
-                <td>${kms}</td>
-                <td>${formatarMoeda(combustivel)}</td>
-                <td>#####</td>
-                <td>#####</td>
-                <td style="font-weight:bold; color:${parseFloat(somaTotal) >= 0 ? 'green' : 'red'}">
-                    ${formatarMoeda(somaTotal)}
-                </td>
-                <td>
-                    ######
-                </td>
-            `;
-            rodapeTabela.appendChild(tf);
-            
             corpoTabela.innerHTML = '';
             if (filtrados.length === 0) {
                 corpoTabela.innerHTML = '<tr><td colspan="11" style="text-align:center">Nenhum registro encontrado nesta semana.</td></tr>';
@@ -275,6 +255,26 @@
                 `;
                 corpoTabela.appendChild(tr);
             });
+
+            const tf = document.createElement('tr');
+            tf.innerHTML = `
+                <td>##/##/####</td>
+                <td>${formatarMoeda(somaUber)}</td>
+                <td>${formatarMoeda(soma99)}</td>
+                <td>${formatarMoeda(somaIndrive)}</td>
+                <td>${formatarMoeda(somaOutros)}</td>
+                <td>${parseFloat(kms || 0).toFixed(2)}</td>
+                <td>${formatarMoeda(combustivel)}</td>
+                <td>#####</td>
+                <td>#####</td>
+                <td style="font-weight:bold; color:${parseFloat(somaTotal) >= 0 ? 'green' : 'red'}">
+                    ${formatarMoeda(somaTotal)}
+                </td>
+                <td>
+                    ######
+                </td>
+            `;
+            rodapeTabela.appendChild(tf);
         }
 
         function mudarSemana(dias) {
