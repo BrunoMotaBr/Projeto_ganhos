@@ -102,6 +102,7 @@
                 <div class="form-group"><label>KMs Rodados:</label><input type="number" id="kms_rodados" step="0.1" value="0.0"></div>
                 <div class="form-group"><label>Preço litro (R$):</label><input type="number" id="valor_litro" step="0.001" value="0.000" data-calculo></div>
                 <div class="form-group"><label>Quantidade litros:</label><input type="number" id="quantidade_litros" step="0.01" value="0.00" data-calculo></div>
+                <div class="form-group"><label>Valor Gas:</label><input type="number" id="valor_gas" step="0.01" value="0.00" data-calculo></div>
                 <div class="form-group"><label>Total líquido (R$):</label><input type="number" id="total_dia" step="0.01" readonly></div>
                 <div class="form-group"><label>Obs:</label><input type="text" id="obs"></div>
                 
@@ -139,6 +140,8 @@
         function calcularValores() {
             const totalBruto = pegarNumero('uber') + pegarNumero('noventa_nove') + pegarNumero('indrive') + pegarNumero('outros');
             const gastoCombustivel = pegarNumero('valor_litro') * pegarNumero('quantidade_litros');
+            const combIn = document.getElementById('valor_gas');
+            combIn.value = formatarMoeda(gastoCombustivel);
             document.getElementById('total_dia').value = (totalBruto - gastoCombustivel).toFixed(2);
         }
 
@@ -181,6 +184,7 @@
 
         function renderizarSemana() {
             const corpoTabela = document.getElementById('tabela-corpo');
+            const rodapeTabela = document.getElementById('tabela-rodape');
             const tituloSemana = document.getElementById('intervalo-semana');
             
             // Lógica para encontrar Segunda e Domingo da semana atual de referência
@@ -208,16 +212,43 @@
             console.log(filtrados[0].total_dia);
             
             let somaTotal = 0;
+            let somaUber = 0;
+            let soma99 = 0;
+            let somaIndrive = 0;
+            let somaOutros = 0;
+            let kms = 0;
+            let combustivel = 0;
             
             filtrados.forEach((i) => {
                 somaTotal = somaTotal + Number(i.total_dia || 0);
+                somaUber = somaUber + Number(i.uber || 0);
+                soma99 = soma99 + Number(i.noventa_nove || 0);
+                somaIndrive = somaIndrive + Number(i.indrive || 0);
+                somaOutros = somaOutros + Number(i.outros || 0);
+                kms = kms + Number(i.kms_rodados || 0);
+                combustivel = combustivel + Number(i.valor_combustivel || 0);
             });
-
-            console.log(filtrados);
-            console.log(somaTotal);
-
             
-
+            const tf = document.createElement('tr');
+            tf.innerHTML = `
+                <td>#####</td>
+                <td>${formatarMoeda(somaUber)}</td>
+                <td>${formatarMoeda(soma99)}</td>
+                <td>${formatarMoeda(somaIndrive)}</td>
+                <td>${formatarMoeda(somaOutros)}</td>
+                <td>${kms}</td>
+                <td>${formatarMoeda(combustivel)}</td>
+                <td>#####</td>
+                <td>#####</td>
+                <td style="font-weight:bold; color:${parseFloat(item.total_dia) >= 0 ? 'green' : 'red'}">
+                    ${formatarMoeda(somaTotal)}
+                </td>
+                <td>
+                    ######
+                </td>
+            `;
+            rodapeTabela.appendChild(tf);
+            
             corpoTabela.innerHTML = '';
             if (filtrados.length === 0) {
                 corpoTabela.innerHTML = '<tr><td colspan="11" style="text-align:center">Nenhum registro encontrado nesta semana.</td></tr>';
