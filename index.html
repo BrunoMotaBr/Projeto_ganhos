@@ -81,9 +81,9 @@
                     <td colspan="11" style="text-align: center;">Buscando dados...</td>
                 </tr>
             </tbody>
-            <tfooter>
+            <tfooter id="tabela-rodape">
                 <tr>
-                    <td colspan="11" style="text-align: center;" id='soma'>R$ </td>
+                    <td colspan="11" style="text-align: center;"></td>
                 </tr>
             </tfooter>
         </table>
@@ -207,13 +207,14 @@
 
             console.log(filtrados[0].total_dia);
             
-            let soma = 0;
+            let somaTotal = 0;
             
             filtrados.forEach((i) => {
-                soma = soma + i.total_dia;
+                somaTotal = somaTotal + Number(i.total_dia || 0);
             });
-            
-            document.getElementById('soma').innerHtml += soma;
+
+            console.log(filtrados);
+            console.log(somaTotal);
 
             
 
