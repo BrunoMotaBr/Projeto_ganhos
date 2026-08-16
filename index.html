@@ -208,8 +208,6 @@
 
             // Ordenar por data
             filtrados.sort((a, b) => a.dia.localeCompare(b.dia));
-
-            console.log(filtrados[0].total_dia);
             
             let somaTotal = 0;
             let somaUber = 0;
@@ -240,7 +238,7 @@
                 <td>${formatarMoeda(combustivel)}</td>
                 <td>#####</td>
                 <td>#####</td>
-                <td style="font-weight:bold; color:${parseFloat(item.total_dia) >= 0 ? 'green' : 'red'}">
+                <td style="font-weight:bold; color:${parseFloat(somaTotal) >= 0 ? 'green' : 'red'}">
                     ${formatarMoeda(somaTotal)}
                 </td>
                 <td>
