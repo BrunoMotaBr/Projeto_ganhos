@@ -39,6 +39,69 @@
 
         .btn-excluir { background: none; border: none; cursor: pointer; font-size: 1.2rem; color: #dc3545; padding: 5px; }
         .btn-excluir:hover { background-color: #ffeeee; border-radius: 50%; }
+        .ganhos{
+            width: 250px;
+            height: 75px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+        }
+        .uber{
+            border: 1px solid #000;
+            h3{
+                margin: 0;
+                padding: 2px 5px;
+                border-bottom: 5px solid #000;
+                background-color: #000;
+                color: #fff;
+            }
+        }
+        .nove_nove{
+            border: 1px solid #ffd900;
+            h3{
+                margin: 0;
+                padding: 2px 5px;
+                border-bottom: 5px solid #ffd900;
+                background-color: #ffd900;
+            }
+        }
+        .indrive{
+            border: 1px solid #009e00;
+            h3{
+                margin: 0;
+                padding: 2px 5px;
+                border-bottom: 5px solid #009e00;
+                background-color: #009e00;
+                color: #FFF;
+            }
+        }
+        .outros{
+            border: 1px solid #9e2500;
+            h3{
+                margin: 0;
+                padding: 2px 5px;
+                border-bottom: 5px solid #9e2500;
+                background-color: #9e2500;
+                color: #FFF;
+            }
+        }
+        .bruto{
+            border: 1px solid #79bd6c;
+            h3{
+                margin: 0;
+                padding: 2px 5px;
+                border-bottom: 5px solid #79bd6c;
+                background-color: #79bd6c;
+                color: #FFF;
+            }
+        }
+        .graficos_div{
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
     </style>
 </head>
 <body>
@@ -84,6 +147,8 @@
         </table>
     </div>
 
+    <div id="graficos" class="graficos"></div>
+
     <!-- Modal Form -->
     <div id="modalForm" class="modal">
         <div class="modal-content">
@@ -110,7 +175,7 @@
     </div>
 
     <script>
-        const urlApi = '/api/ganhos';
+        const urlApi = 'https://projeto-ganhos.vercel.app/api/ganhos';
         let dataReferencia = new Date();
         let todosOsGanhos = [];
 
@@ -179,6 +244,7 @@
 
         function renderizarSemana() {
             const corpoTabela = document.getElementById('tabela-corpo');
+            const graficos = document.getElementById('graficos');
             const rodapeTabela = document.getElementById('tabela-corpo');
             const tituloSemana = document.getElementById('intervalo-semana');
             
@@ -209,6 +275,7 @@
             let soma99 = 0;
             let somaIndrive = 0;
             let somaOutros = 0;
+            let somaBruto = 0;
             let kms = 0;
             let combustivel = 0;
             
@@ -218,6 +285,7 @@
                 soma99 = soma99 + Number(i.noventa_nove || 0);
                 somaIndrive = somaIndrive + Number(i.indrive || 0);
                 somaOutros = somaOutros + Number(i.outros || 0);
+                somaBruto = somaBruto + Number(i.total_dia || 0) + Number(i.valor_combustivel || 0);
                 kms = kms + Number(i.kms_rodados || 0);
                 combustivel = combustivel + Number(i.valor_combustivel || 0);
             });
@@ -251,26 +319,66 @@
                 corpoTabela.appendChild(tr);
             });
 
-            const tf = document.createElement('tr');
-            tf.style.borderTop = '2px solid red';
-            tf.innerHTML = `
-                <td>##/##/####</td>
-                <td>${formatarMoeda(somaUber)}</td>
-                <td>${formatarMoeda(soma99)}</td>
-                <td>${formatarMoeda(somaIndrive)}</td>
-                <td>${formatarMoeda(somaOutros)}</td>
-                <td>${parseFloat(kms || 0).toFixed(2)}</td>
-                <td>${formatarMoeda(combustivel)}</td>
-                <td>#####</td>
-                <td>#####</td>
-                <td style="font-weight:bold; color:${parseFloat(somaTotal) >= 0 ? 'green' : 'red'}">
-                    ${formatarMoeda(somaTotal)}
-                </td>
-                <td>
-                    ######
-                </td>
+            const div = document.createElement('div');
+            div.classList.add('graficos_div');
+            div.innerHTML = `
+                <div class="ganhos uber">
+                    <h3>
+                        Uber    
+                    </h3>
+
+                    <p>
+                        ${formatarMoeda(somaUber)}
+                    </p>
+                </div>
+                <div class="ganhos nove_nove">
+                    <h3>
+                        99    
+                    </h3>
+
+                    <p>
+                        ${formatarMoeda(soma99)}
+                    </p>
+                </div>
+
+                <div class="ganhos indrive">
+                    <h3>
+                        InDrive    
+                    </h3>
+
+                    <p>
+                        ${formatarMoeda(somaIndrive)}
+                    </p>
+                </div>
+
+                <div class="ganhos outros">
+                    <h3>
+                        Outros    
+                    </h3>
+
+                    <p>
+                        ${formatarMoeda(somaOutros)}
+                    </p>
+                </div>
+                <div class="ganhos bruto">
+                    <h3>
+                        Bruto    
+                    </h3>
+
+                    <p>
+                        ${formatarMoeda(somaBruto)}
+                    </p>
+                </div>
+            `
+
+            div.innerHTML += `
+            <section>
+                <h4>${parseFloat(kms || 0).toFixed(2)} Km,s da semana.</h4><br>
+                <h4>${formatarMoeda(combustivel)} Gastos com combustível na semana.</h4><br>
+                <h4>${formatarMoeda(somaTotal)} Total da semana livre.</h4><br>
+            </section>
             `;
-            rodapeTabela.appendChild(tf);
+            graficos.appendChild(div);
         }
 
         function mudarSemana(dias) {
