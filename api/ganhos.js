@@ -1,5 +1,11 @@
 const { Pool } = require('pg');
 
+const headersCors = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'GET, POST, DELETE, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type'
+};
+
 const pool = new Pool({
     connectionString: process.env.DATABASE_URL,
     ssl: {
@@ -8,6 +14,13 @@ const pool = new Pool({
 });
 
 module.exports = async (req, res) => {
+    Object.entries(headersCors).forEach(([chave, valor]) => {
+        res.setHeader(chave, valor);
+    });
+
+    if (req.method === 'OPTIONS') {
+        return res.status(200).end();
+    }
     try {
         if (req.method === 'GET') {
             const { rows } = await pool.query(
