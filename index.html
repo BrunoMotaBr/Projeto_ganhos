@@ -5,21 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Histórico de Ganhos</title>
     <style>
-        /* Estilos Globais Responsivos */
-        body { font-family: Arial, sans-serif; margin: 15px; background-color: #f8f9fa; color: #333; }
+        body {background-color: #22242A; font-family: Arial, sans-serif; margin: 15px; color: #fff; }
         h2 { color: #222; font-size: 1.5rem; }
         
-        .btn-container { display: flex; gap: 10px; margin-bottom: 20px; }
+        .btn-container { display: flex; gap: 10px; margin-bottom: 20px; justify-content: center;align-items: center; flex-wrap: wrap; }
         button { flex: 1; max-width: 200px; padding: 12px; font-size: 1rem; background-color: #007bff; color: white; border: none; cursor: pointer; border-radius: 6px; font-weight: bold; }
         button:hover { background-color: #0056b3; }
         .btn-success { background-color: #28a745; }
         .btn-success:hover { background-color: #218838; }
         .btn-danger { background-color: #dc3545; }
         
-        .table-responsive { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); margin-bottom: 20px; }
+        .table-responsive { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; background: #22242A; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); margin-bottom: 20px; }
         table { width: 100%; border-collapse: collapse; min-width: 1000px; }
-        th, td { border: 1px solid #dee2e6; padding: 12px 10px; text-align: left; font-size: 0.9rem; }
-        th { background-color: #f1f3f5; font-weight: bold; }
+        th, td { border: 1px solid #0369cf; padding: 12px 10px; text-align: left; font-size: 0.9rem; }
+        th { background-color: #3e6e9e; font-weight: bold; }
         tr:nth-child(even) { background-color: #f8f9fa; }
         
         .erro { color: #dc3545; font-weight: bold; margin-bottom: 15px; }
@@ -28,7 +27,7 @@
 
         /* Modal */
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); overflow-y: auto; padding: 10px; box-sizing: border-box; }
-        .modal-content { background-color: white; margin: 20px auto; padding: 20px; border-radius: 8px; max-width: 500px; width: 100%; box-sizing: border-box; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+        .modal-content { background-color: white; margin: 20px auto; padding: 20px; border-radius: 8px; max-width: 500px; width: 100%; box-sizing: border-box; box-shadow: 0 4px 12px rgba(0,0,0,0.15); color:#000 }
         .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 15px; }
         
         .form-group { margin-bottom: 12px; }
@@ -44,6 +43,8 @@
             height: 75px;
             border-radius: 8px;
             border: 1px solid #ccc;
+            background-color: rgb(228, 226, 226);
+            color: #000;
         }
         .uber{
             border: 1px solid #000;
@@ -94,19 +95,90 @@
                 color: #FFF;
             }
         }
-        .graficos_div{
-            display: flex;
-            justify-content: center;
+        .graficos_div {
+            display: grid;
+            grid-template-columns: 1fr; 
+            justify-items: center;
             align-items: center;
             gap: 10px;
-            flex-wrap: wrap;
             margin-top: 20px;
+        }
+
+        @media (min-width: 768px) {
+            .graficos_div {
+                grid-template-columns: repeat(3, 1fr); 
+            }
+        }
+        .resulmo_semana {
+            /* Container principal */
+            background: linear-gradient(135deg, #ffffff, #fdfdfd);
+            border: 1px solid #eef2f5;
+            border-radius: 16px;
+            padding: 24px;
+            max-width: 450px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            color: #333333;
+            
+            /* Organiza os parágrafos em duas colunas */
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+        }
+        .resulmo_semana h5 {
+            /* Título principal */
+            margin: 0 0 8px 0;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #1a1a1a;
+            border-bottom: 2px solid #3b82f6; /* Detalhe em azul moderno */
+            padding-bottom: 8px;
+        }
+        .resulmo_semana p {
+            /* Cada linha de informação */
+            margin: 0;
+            padding: 10px 14px;
+            background-color: #f8fafc;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: #475569;
+            border-left: 4px solid #cbd5e1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.2s ease;
+        }
+        .resulmo_semana p:hover {
+            background-color: #f1f5f9;
+            transform: translateX(4px);
+        }
+        .resulmo_semana p:last-of-type {
+            background: #f0fdf4; /* Fundo verde claro */
+            color: #166534;
+            border-left-color: #22c55e; /* Linha verde */
+            font-weight: 700;
+            font-size: 1.05rem;
+            margin-top: 8px;
+            box-shadow: 0 4px 12px rgba(34, 197, 94, 0.1);
+        }
+        .resulmo_semana p:nth-last-of-type(2),
+        .resulmo_semana p:nth-last-of-type(3) {
+            border-left-color: #ef4444; /* Linha vermelha para gastos */
+        }
+        .resumo-semana{
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
         }
     </style>
 </head>
 <body>
 
-    <h2>Histórico de Ganhos e Despesas</h2>
+    <h2 style="color: #fff;text-align: center;">Histórico de Ganhos e Despesas</h2>
     
     <div class="btn-container">
         <button onclick="buscarGanhos()">Atualizar</button>
@@ -317,10 +389,13 @@
                 `;
                 corpoTabela.appendChild(tr);
             });
-
+            if(document.querySelectorAll('.resumo-semana').length > 0){
+                document.querySelector('.resumo-semana').remove();
+            }
             const div = document.createElement('div');
-            div.classList.add('graficos_div');
+            div.className = 'resumo-semana';
             div.innerHTML = `
+            <section class="graficos_div">
                 <div class="ganhos uber">
                     <h3>
                         Uber    
@@ -368,14 +443,29 @@
                         ${formatarMoeda(somaBruto)}
                     </p>
                 </div>
-            `
 
-            div.innerHTML += `
-            <section>
-                <h4>${parseFloat(kms || 0).toFixed(2)} Km,s da semana.</h4><br>
-                <h4>${formatarMoeda(combustivel)} Gastos com combustível na semana.</h4><br>
-                <h4>${formatarMoeda(somaTotal)} Total da semana livre.</h4><br>
+                <div class="ganhos bruto">
+                    <h3>
+                        Km's    
+                    </h3>
+
+                    <p>
+                        ${parseFloat(kms || 0).toFixed(2)}
+                    </p>
+                </div>
             </section>
+                <div class="resulmo_semana">
+                    <h5>Resulmo da semana.</h5>
+                    <p>
+                        ${parseFloat(kms || 0).toFixed(2) / filtrados.length || 0} km's média por dia.
+                    </p>
+                    <p>Dias trabalhados: ${filtrados.length || 0}</p>
+                    <p>Media de ganhos por dia bruto: ${formatarMoeda(somaBruto / filtrados.length || 0)}</p>
+                    <p>Media de ganhos por dia livre: ${formatarMoeda(somaTotal / filtrados.length || 0)}</p>
+                    <p>Media de gastos de gasolina: ${formatarMoeda(combustivel / filtrados.length || 0)}</p>
+                    <p>Gastos com combustível na semana: ${formatarMoeda(combustivel)}</p>
+                    <p>Total da semana livre: ${formatarMoeda(somaTotal)}</p>
+                </div>
             `;
             graficos.appendChild(div);
         }
