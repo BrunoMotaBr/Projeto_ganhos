@@ -200,8 +200,7 @@
         function calcularValores() {
             const totalBruto = pegarNumero('uber') + pegarNumero('noventa_nove') + pegarNumero('indrive') + pegarNumero('outros');
             const gastoCombustivel = pegarNumero('valor_litro') * pegarNumero('quantidade_litros');
-            const combIn = document.getElementById('valor_gas');
-            combIn.value = formatarMoeda(gastoCombustivel);
+            document.getElementById('valor_gas').value = gastoCombustivel.toFixed(2);
             document.getElementById('total_dia').value = (totalBruto - gastoCombustivel).toFixed(2);
         }
 
