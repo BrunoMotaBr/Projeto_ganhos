@@ -385,7 +385,7 @@
                         ${formatarMoeda(item.total_dia)}
                     </td>
                     <td>
-                        ${item.valor_combustivel / (item.uber + item.noventa_nove + item.indrive + item.outro) * 100}%
+                        ${formatarMoeda(item.valor_combustivel) / (formatarMoeda(item.uber) + formatarMoeda(item.noventa_nove) + formatarMoeda(item.indrive) + formatarMoeda(item.outro)) * 100}%
                     </td>
                     <td>
                         <button class="btn-excluir" title="Excluir" onclick="excluir('${item.id}')">🗑️</button>
