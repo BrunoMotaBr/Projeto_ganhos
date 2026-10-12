@@ -372,8 +372,7 @@
                 const dataObj = converterParaDataLocal(item.dia);
                 const tr = document.createElement('tr');
                 let porcentagem_gas = 0;
-                porcentagem_gas = item.valor_combustivel / (item.uber + item.noventa_nove + item.indrive + item.outro) * 100;
-                console.log(porcentagem_gas);
+                porcentagem_gas = (Number(item.valor_combustivel) / (Number(item.uber) + Number(item.noventa_nove) + Number(item.indrive) + Number(item.outros))) * 100;
                 tr.innerHTML = `
                     <td>${dataObj.toLocaleDateString('pt-BR')}</td>
                     <td>${formatarMoeda(item.uber)}</td>
