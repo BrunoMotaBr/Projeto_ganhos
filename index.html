@@ -371,6 +371,8 @@
             filtrados.forEach(item => {
                 const dataObj = converterParaDataLocal(item.dia);
                 const tr = document.createElement('tr');
+                let porcentagem_gas = 0;
+                porcentagem_gas = item.valor_combustivel / (item.uber + item.noventa_nove + item.indrive + item.outro) * 100
                 tr.innerHTML = `
                     <td>${dataObj.toLocaleDateString('pt-BR')}</td>
                     <td>${formatarMoeda(item.uber)}</td>
@@ -385,7 +387,7 @@
                         ${formatarMoeda(item.total_dia)}
                     </td>
                     <td>
-                        ${formatarMoeda(item.valor_combustivel) / (formatarMoeda(item.uber) + formatarMoeda(item.noventa_nove) + formatarMoeda(item.indrive) + formatarMoeda(item.outro)) * 100}%
+                        ${parseFloat(porcentagem_gas).toFixed(2)}%
                     </td>
                     <td>
                         <button class="btn-excluir" title="Excluir" onclick="excluir('${item.id}')">🗑️</button>
