@@ -236,7 +236,7 @@
                 <div class="form-group"><label>Preço litro (R$):</label><input type="number" id="valor_litro" step="0.001" value="0.000" data-calculo></div>
                 <div class="form-group"><label>Quantidade litros:</label><input type="number" id="quantidade_litros" step="0.01" value="0.00" data-calculo></div>
                 <div class="form-group"><label>Valor Gas:</label><input type="number" id="valor_gas" step="0.01" value="0.00" data-calculo></div>
-                <div class="form-group"><label>Total líquido (R$):</label><input type="number" id="total_dia" step="0.01" readonly></div>
+                <div class="form-group"><label>Total líquido (R$) / Total:</label><input type="number" id="total_dia" step="0.01" readonly></div>
                 <div class="form-group"><label>Obs:</label><input type="text" id="obs"></div>
                 
                 <div class="form-actions">
@@ -373,6 +373,7 @@
                 const tr = document.createElement('tr');
                 let porcentagem_gas = 0;
                 porcentagem_gas = (Number(item.valor_combustivel) / (Number(item.uber) + Number(item.noventa_nove) + Number(item.indrive) + Number(item.outros))) * 100;
+                let bruto = Number(item.total_dia) + Number(item.valor_combustivel);
                 tr.innerHTML = `
                     <td>${dataObj.toLocaleDateString('pt-BR')}</td>
                     <td>${formatarMoeda(item.uber)}</td>
@@ -384,7 +385,7 @@
                     <td>${formatarMoeda(item.valor_litro)}</td>
                     <td>${item.quantidade_litros}</td>
                     <td style="font-weight:bold; color:${parseFloat(item.total_dia) >= 0 ? 'green' : 'red'}">
-                        ${formatarMoeda(item.total_dia)}
+                        ${formatarMoeda(item.total_dia)} / ${formatarMoeda(bruto)}
                     </td>
                     <td>
                         ${parseFloat(porcentagem_gas).toFixed(2)}%
