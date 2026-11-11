@@ -174,6 +174,42 @@
             gap: 20px;
             flex-wrap: wrap;
         }
+        
+        .termometro-horizontal {
+            --porcentagem: 0;
+            --matiz-cor: calc(var(--porcentagem) * 1.2);
+            
+            display: flex;
+            align-items: center;
+            width: 100%;
+            max-width: 400px;
+            margin: 10px auto;
+            box-sizing: border-box;
+        }
+
+        .termometro-barra {
+            flex-grow: 1;
+            position: relative;
+            height: 12px;
+            /* O gradiente agora fica fixo no fundo da barra inteira */
+            background: linear-gradient(to right, #ff0000, #ffcc00, #00ff00);
+            border-radius: 6px;
+            box-sizing: border-box;
+        }
+
+        /* Esta camada cinza cobre o que ainda não foi alcançado */
+        .termometro-barra::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            /* Deixa cinza apenas a parte restante da meta */
+            width: calc(100% - (var(--porcentagem) * 1%));
+            background: #e0e0e0;
+            border-radius: 0 6px 6px 0;
+            transition: width 0.5s ease;
+        }
     </style>
 </head>
 <body>
@@ -186,6 +222,13 @@
     </div>
 
     <div id="mensagem-erro" class="erro"></div>
+    
+    <div id="meu-termometro" class="termometro-horizontal">
+        <div class="termometro-barra">
+            <div class="termometro-preenchimento"></div>
+        </div>
+    </div>
+
 
     <div class="paginacao">
         <button onclick="mudarSemana(-7)" style="max-width: 60px;"> &lt; </button>
@@ -251,6 +294,16 @@
         const urlApi = 'https://projeto-ganhos.vercel.app/api/ganhos';
         let dataReferencia = new Date();
         let todosOsGanhos = [];
+
+        function atualizarTermometro(valorAtual) {
+            const meta = 1500;
+            
+            let porcentagem = (valorAtual / meta) * 100;
+            porcentagem = Math.min(100, Math.max(0, porcentagem));
+
+            const termometro = document.getElementById('meu-termometro');
+            termometro.style.setProperty('--porcentagem', porcentagem);
+        }
 
         // --- Funções Auxiliares ---
         
@@ -365,6 +418,11 @@
             corpoTabela.innerHTML = '';
             if (filtrados.length === 0) {
                 corpoTabela.innerHTML = '<tr><td colspan="11" style="text-align:center">Nenhum registro encontrado nesta semana.</td></tr>';
+                atualizarTermometro(0);
+                const elemento = document.querySelector('.resumo-semana');
+                if (elemento) {
+                    elemento.remove();
+                }
                 return;
             }
 
@@ -475,6 +533,7 @@
                     <p>Total da semana livre: ${formatarMoeda(somaTotal)}</p>
                 </div>
             `;
+            atualizarTermometro(somaTotal);
             graficos.appendChild(div);
         }
 
