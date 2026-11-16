@@ -249,7 +249,7 @@
                     <th>KM</th>
                     <th>Combust.</th>
                     <th>Preço L</th>
-                    <th>Litros</th>
+                    <th>Litros / Rendimento</th>
                     <th>Total Líquido / Total</th>
                     <th>Gasto por ganho %</th>
                     <th>Ações</th>
@@ -432,6 +432,8 @@
                 const dataObj = converterParaDataLocal(item.dia);
                 const tr = document.createElement('tr');
                 let porcentagem_gas = 0;
+                let rendimento_carro = 0;
+                rendimento_carro = (Number(item.kms_rodados) / Number(item.quantidade_litros)) || 0;
                 porcentagem_gas = (Number(item.valor_combustivel) / (Number(item.uber) + Number(item.noventa_nove) + Number(item.indrive) + Number(item.outros))) * 100;
                 let bruto = Number(item.total_dia) + Number(item.valor_combustivel);
                 tr.innerHTML = `
@@ -443,7 +445,7 @@
                     <td>${item.kms_rodados}</td>
                     <td>${formatarMoeda(item.valor_combustivel)}</td>
                     <td>${formatarMoeda(item.valor_litro)}</td>
-                    <td>${item.quantidade_litros}</td>
+                    <td>${item.quantidade_litros} / ${parseFloat(rendimento_carro).toFixed(2)} kms por litro</td>
                     <td style="font-weight:bold; color:${parseFloat(item.total_dia) >= 0 ? 'green' : 'red'}">
                         ${formatarMoeda(item.total_dia)} / ${formatarMoeda(bruto)}
                     </td>
